@@ -1,0 +1,25 @@
+body {
+    font-family: "Lato", "Helvetica", Helvetica, sans-serif;
+    background: #000000;
+    color: #ffffff;
+    padding: 20px;
+    letter-spacing: 1px;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+li {
+    float: left;
+}
+
+li a {
+    display: block;
+    padding: 8px;
+    border: 1px solid #ffffff;
+
+}
