@@ -1,15 +1,16 @@
-module.exports.Player = Player;
-function Player(id, x, y) {
-    this.id = id;
-    this.x = x;
-    this.y = y;
-    this.input = 0;     //+1 goes down, -1 goes up, 0 is neutral
-    this.score = 0;
 
+class Player {
+    constructor(id, x, y) {
+        this.id = id;
+        this.x = x;
+        this.y = y;
+        this.input = 0;     //+1 goes down, -1 goes up, 0 is neutral
+        this.score = 0;
+    }
     /**
      * @param {number} x
      */
-    this.setInput = function (x) {
+    setInput(x) {
         if (x > 0) {
             this.input = 1;
         }
@@ -21,17 +22,19 @@ function Player(id, x, y) {
         }
     }
 
-    this.getPosition = function () { return { x: this.x, y: this.y }; }
-    this.setPosition = function (pos) { this.x = pos.x; this.y = pos.y; }
+    get position() { return { x: this.x, y: this.y }; }
+    set position(pos) { this.x = pos.x; this.y = pos.y; }
 
-    this.update = function () {
+    update() {
         this.y += this.input;
     }
 
-    this.incrementScore = function () {
+    incrementScore() {
         this.score++;
     }
-    this.resetScore = function () {
+    resetScore() {
         this.score = 0;
     }
 }
+
+module.exports.Player = Player;
