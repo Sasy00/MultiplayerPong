@@ -2,7 +2,6 @@ module.exports.GameState = GameState;
 
 const { Player } = require('./Player');
 const { Ball } = require('./Ball');
-
 const width = 800;
 const height = 600;
 const ballRadius = 8;
@@ -35,62 +34,62 @@ function GameState(sio) {
         this.ball.update();
 
         //check for collisions
-        if (this.ball.getPosition().y <= 0) {
+        if (this.ball.position.y <= 0) {
             this.ball.flipVY(); //bounce
-            let currPosition = this.ball.getPosition();
+            let currPosition = this.ball.position;
             currPosition.y = ballRadius;
-            this.ball.setPosition(currPosition);
+            this.ball.position = currPosition;
         }
-        else if (this.ball.getPosition().y >= height) {
+        else if (this.ball.position.y >= height) {
             this.ball.flipVY(); //bounce
-            let currPosition = this.ball.getPosition();
+            let currPosition = this.ball.position;
             currPosition.y = height - ballRadius;
-            this.ball.setPosition(currPosition);
+            this.ball.position = currPosition;
         }
 
-        if (this.ball.getPosition().x <= 0) {
+        if (this.ball.position.x <= 0) {
             //who is the player on the left? aka gameID == 0
             //basically we need to find who is player 0, so we use the composed function
             //gameID=>socketID=>Player === gameID=>Player
             let leftPlayer = this.players.get(this.gameIDtoSocketID.get(0));
-            if (this.ball.getPosition().y > leftPlayer.getPosition().y && this.ball.getPosition().y < leftPlayer.getPosition().y + paddleHeight) {
+            if (this.ball.position.y > leftPlayer.position.y && this.ball.position.y < leftPlayer.position.y + paddleHeight) {
                 //bounce with player
                 this.ball.flipVX();
-                let currPosition = this.ball.getPosition();
+                let currPosition = this.ball.position;
                 currPosition.x = paddleWidth + ballRadius;
-                let distanceFromCentreOfPaddle = this.ball.getPosition().y - ((paddleHeight / 2) + leftPlayer.getPosition().y);
-                this.ball.setVelocity({
-                    x: this.ball.getVelocity().x,
+                let distanceFromCentreOfPaddle = this.ball.position.y - ((paddleHeight / 2) + leftPlayer.position.y);
+                this.ball.velocity = {
+                    x: this.ball.velocity.x,
                     y: distanceFromCentreOfPaddle * bounceAngle / (paddleHeight / 2)
-                });
+                };
             } else {
                 //right scored
                 let rightPlayer = this.players.get(this.gameIDtoSocketID.get(1));
                 rightPlayer.incrementScore();
                 this.resetPositions();
-                this.ball.setVelocity({ x: -1, y: 0 });
+                this.ball.velocity = { x: -1, y: 0 };
             }
         }
-        else if (this.ball.getPosition().x >= width) {
+        else if (this.ball.position.x >= width) {
             //look the precedent if 
             let rightPlayer = this.players.get(this.gameIDtoSocketID.get(1));
-            if (this.ball.getPosition().y > rightPlayer.getPosition().y && this.ball.getPosition().y < rightPlayer.getPosition().y + paddleHeight) {
+            if (this.ball.position.y > rightPlayer.position.y && this.ball.position.y < rightPlayer.position.y + paddleHeight) {
                 //bounce with player
                 this.ball.flipVX();
-                let currPosition = this.ball.getPosition();
+                let currPosition = this.ball.position;
                 currPosition.x = width - (paddleWidth + ballRadius);
-                let distanceFromCentreOfPaddle = this.ball.getPosition().y - ((paddleHeight / 2) + rightPlayer.getPosition().y);
-                this.ball.setVelocity({
-                    x: this.ball.getVelocity().x,
+                let distanceFromCentreOfPaddle = this.ball.position.y - ((paddleHeight / 2) + rightPlayer.position.y);
+                this.ball.velocity = {
+                    x: this.ball.velocity.x,
                     y: distanceFromCentreOfPaddle * bounceAngle / (paddleHeight / 2)
-                });
+                };
             }
             else {
                 //left scored
                 let leftPlayer = this.players.get(this.gameIDtoSocketID.get(0));
                 leftPlayer.incrementScore();
                 this.resetPositions();
-                this.ball.setVelocity({ x: 1, y: 0 });
+                this.ball.velocity = { x: 1, y: 0 };
             }
         }
         //each tick we send the current state to the players.
@@ -101,12 +100,12 @@ function GameState(sio) {
 
     this.resetPositions = function () {
         let leftPlayer = this.players.get(this.gameIDtoSocketID.get(0));
-        leftPlayer.setPosition({ x: 0, y: height / 2 - paddleHeight / 2 });
+        leftPlayer.position = { x: 0, y: height / 2 - paddleHeight / 2 };
 
         let rightPlayer = this.players.get(this.gameIDtoSocketID.get(1));
-        rightPlayer.setPosition({ x: width - paddleWidth, y: height / 2 - paddleHeight / 2 });
+        rightPlayer.position = { x: width - paddleWidth, y: height / 2 - paddleHeight / 2 };
 
-        this.ball.setPosition({ x: width / 2, y: height / 2 });
+        this.ball.position = { x: width / 2, y: height / 2 };
     }
 
     this.getState = function () {
@@ -118,8 +117,8 @@ function GameState(sio) {
             {
                 paddle:
                 {
-                    x: leftPlayer.x,
-                    y: leftPlayer.y
+                    x: leftPlayer.position.x,
+                    y: leftPlayer.position.y
                 },
                 score: leftPlayer.score
             },
@@ -140,7 +139,7 @@ function GameState(sio) {
         for (const [key, id] of this.players) {
             this.io.to(key).emit('start', this.getState());
         }
-        this.ball.setVelocity({ x: 1, y: 0 });
+        this.ball.velocity = { x: 1, y: 0 };
     }
 
     this.setInput = function (id, input) {
