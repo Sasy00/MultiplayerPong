@@ -10,7 +10,7 @@ class Player {
     /**
      * @param {number} x
      */
-    set input(x) {
+    setInput(x) {
         if (x > 0) {
             this.input = 1;
         }
