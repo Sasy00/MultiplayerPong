@@ -41,3 +41,5 @@ class Ball {
         this.y += this.vy;
     }
 }
+
+module.exports.Ball = Ball;
