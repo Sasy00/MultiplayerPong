@@ -1,5 +1,3 @@
-module.exports.GameState = GameState;
-
 const { Player } = require('./Player');
 const { Ball } = require('./Ball');
 const width = 800;
@@ -10,13 +8,14 @@ const paddleWidth = 8;
 const gamePoints = 7;
 const bounceAngle = 10;
 
-function GameState(sio) {
-    this.io = sio;
-    this.players = new Map();                   //socketID -> Player
-    this.gameIDtoSocketID = new Map();          //gameID -> socketID
-    this.ball = new Ball(width / 2, height / 2);
-
-    this.addPlayer = function (id) {
+class GameState {
+    constructor(sio) {
+        this.io = sio;
+        this.players = new Map(); //socketID -> Player
+        this.gameIDtoSocketID = new Map(); //gameID -> socketID
+        this.ball = new Ball(width / 2, height / 2);
+    }
+    addPlayer(id) {
         if (this.players.size === 0) {
             this.players.set(id, new Player(id, 0, height / 2 - paddleHeight / 2));
             this.gameIDtoSocketID.set(0, id);
@@ -25,9 +24,9 @@ function GameState(sio) {
             this.players.set(id, new Player(id, width - paddleWidth, height / 2 - paddleHeight / 2));
             this.gameIDtoSocketID.set(1, id);
         }
-    }
+    };
 
-    this.update = function () {
+    update() {
         for (const [id, player] of this.players) {
             player.update();
         }
@@ -96,9 +95,9 @@ function GameState(sio) {
         for (const [key, id] of this.players) {
             this.io.to(key).emit('update', this.getState());
         }
-    }
+    };
 
-    this.resetPositions = function () {
+    resetPositions() {
         let leftPlayer = this.players.get(this.gameIDtoSocketID.get(0));
         leftPlayer.position = { x: 0, y: height / 2 - paddleHeight / 2 };
 
@@ -106,26 +105,22 @@ function GameState(sio) {
         rightPlayer.position = { x: width - paddleWidth, y: height / 2 - paddleHeight / 2 };
 
         this.ball.position = { x: width / 2, y: height / 2 };
-    }
+    };
 
-    this.getState = function () {
+    getState() {
         let leftPlayer = this.players.get(this.gameIDtoSocketID.get(0));
         let rightPlayer = this.players.get(this.gameIDtoSocketID.get(1));
         let state = {
             ball: { x: this.ball.x, y: this.ball.y },
-            p1:
-            {
-                paddle:
-                {
+            p1: {
+                paddle: {
                     x: leftPlayer.position.x,
                     y: leftPlayer.position.y
                 },
                 score: leftPlayer.score
             },
-            p2:
-            {
-                paddle:
-                {
+            p2: {
+                paddle: {
                     x: rightPlayer.x,
                     y: rightPlayer.y
                 },
@@ -133,16 +128,18 @@ function GameState(sio) {
             },
         };
         return state;
-    }
+    };
 
-    this.start = function () {
+    start() {
         for (const [key, id] of this.players) {
             this.io.to(key).emit('start', this.getState());
         }
         this.ball.velocity = { x: 1, y: 0 };
-    }
+    };
 
-    this.setInput = function (id, input) {
+    setInput(id, input) {
         this.players.get(id).setInput(input);
-    }
-};
+    };
+}
+
+module.exports.GameState = GameState;
