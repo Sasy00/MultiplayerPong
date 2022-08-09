@@ -34,3 +34,18 @@ app.get('/', (req, res) => {
 server.listen(PORT, () => {
     console.log(`Listening on *:${PORT}`)
 });
+
+process.on('SIGINT', function () {
+    console.log("\nGracefully shutting down from SIGINT (Ctrl-C)");
+    io.disconnectSockets();
+    server.close((error)=>{
+        if(error){
+            console.log(error);
+        }
+        console.log('Http server closed');
+        io.close(()=>{
+            console.log("io closed");
+            process.exit(0);
+        })
+    })
+});
